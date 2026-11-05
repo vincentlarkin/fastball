@@ -1,31 +1,31 @@
-# The Fastball checklist
+# checklist
 
-Run this on every screen before it ships.
+Run on every screen before it ships.
 
-## Glance
-- [ ] Shown for under half a second, a new person can say what the screen is about.
-- [ ] The answer to the screen's question is the largest text on it.
-- [ ] The main action is the most obvious button, and it has a word on it.
+## glance
+- [ ] Shown for < 0.5 s, a new person can say what it is.
+- [ ] The answer is the largest text.
+- [ ] The main action is the most obvious button, and has a word.
 
-## Words
-- [ ] No codes or abbreviations the public wouldn't know (agency codes, area codes, unit IDs).
-- [ ] No ALL CAPS text, including data straight from a feed.
-- [ ] Times are 12-hour with Today / Yesterday / a short date.
-- [ ] Distances and counts have units ("0.6 mi", "2 units", "326 calls").
-- [ ] Every color-coded thing also has a word.
+## words
+- [ ] No codes the public wouldn't know (agency, area, unit IDs).
+- [ ] No all caps, including raw feed data.
+- [ ] 12-hour time. Today, Yesterday, or a short date.
+- [ ] Numbers have units: `0.6 mi`, `2 units`, `326 calls`.
+- [ ] Every color has a word.
 
-## Hands
-- [ ] Every tap target is at least 44 × 44 px.
-- [ ] Body text is at least 16 px; main lines are 17–18 px.
-- [ ] No controls closer than 8 px apart.
+## hands
+- [ ] Targets ≥ 44 × 44 px.
+- [ ] Body text ≥ 16 px. Main lines 17–18 px.
+- [ ] Controls ≥ 8 px apart.
 
-## Screens
-- [ ] Works at 280 px wide (foldable cover screen) with nothing overlapping or cut off.
-- [ ] Works at 380 px tall (phone landscape, or Safari with both bars showing).
-- [ ] Popups scroll inside themselves; Close is always visible.
-- [ ] Respects safe areas (notches, home indicator).
+## screens
+- [ ] 280 px wide: nothing overlaps or clips.
+- [ ] 380 px tall: still usable (phone landscape, Safari with both bars).
+- [ ] Popups scroll inside. Close stays visible.
+- [ ] Safe areas respected (notch, home indicator).
 
-## Knobs
-- [ ] Filters, sort and settings sit behind one labeled button.
-- [ ] When any knob is on, the button says so.
-- [ ] Nothing on screen depends on a setting the person can't see.
+## knobs
+- [ ] Filters, sort and settings behind one labeled button.
+- [ ] The button shows when any knob is on.
+- [ ] Nothing depends on a setting the user can't see.

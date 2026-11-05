@@ -1,6 +1,6 @@
 /*
- * Fastball helpers: plain words, human time, popups that fit, hidden knobs.
- * No dependencies. Exposes window.Fastball (and module.exports for tests).
+ * fastball helpers: plain words, 12-hour time, popups, hidden knobs.
+ * No dependencies. Exports window.Fastball and module.exports.
  */
 (function (root) {
   'use strict';
