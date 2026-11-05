@@ -1,0 +1,11 @@
+{
+  "name": "fastball",
+  "version": "0.1.0",
+  "description": "A UI design philosophy and small CSS/JS kit for interfaces you understand in an instant.",
+  "main": "fastball.js",
+  "style": "fastball.css",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.cjs"
+  }
+}

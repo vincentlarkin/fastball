@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fastball example</title>
+  <link rel="stylesheet" href="../fastball.css">
+  <script src="../fastball.js" defer></script>
+  <style>
+    .demo-note { margin: 0; padding: 8px var(--fb-gutter); font-size: 14px; color: var(--fb-text-3); }
+    .demo-tabs { display: flex; gap: 8px; padding: var(--fb-gap); border-bottom: 1px solid var(--fb-border); }
+    .demo-tabs .fb-btn:first-child { flex: 1 1 auto; }
+  </style>
+</head>
+<body class="fb">
+  <header class="fb-header">
+    <div class="fb-header__title">
+      <h1>Town Calls</h1>
+      <p class="fb-status" id="status">4 calls · Updated 8:44 PM</p>
+    </div>
+    <button class="fb-btn fb-btn--squeeze" type="button" id="theme" aria-label="Switch light or dark">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+      <span class="fb-btn__text">Theme</span>
+    </button>
+    <div class="fb-header__actions">
+      <button class="fb-btn fb-btn--primary" type="button" id="near-btn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+        Near me
+      </button>
+      <div class="fb-switch" role="group" aria-label="View">
+        <button type="button" aria-pressed="false">Map</button>
+        <button type="button" aria-pressed="true">List</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="demo-tabs">
+    <button class="fb-btn" type="button" aria-pressed="true">Latest</button>
+    <button class="fb-btn" type="button" id="filter-btn" aria-controls="knobs">Filter</button>
+  </div>
+
+  <div class="fb-knobs" id="knobs">
+    <label class="fb-btn"><input type="checkbox" id="only-serious"> Only serious calls</label>
+  </div>
+
+  <p class="demo-note">This page is a sample of the Fastball kit with made-up data. Tap a card.</p>
+  <ul class="fb-list" id="list"></ul>
+
+  <div class="fb-dialog" id="dialog" aria-hidden="true">
+    <div class="fb-dialog__backdrop"></div>
+    <div class="fb-dialog__box" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <div class="fb-dialog__body">
+        <p class="fb-dialog__kicker">Happening now</p>
+        <h2 class="fb-dialog__title" id="dialog-title"></h2>
+        <div id="dialog-tag"></div>
+        <dl class="fb-facts" style="margin-top: 10px">
+          <div><dt>Where</dt><dd id="dialog-where"></dd></div>
+          <div><dt>When</dt><dd id="dialog-when"></dd></div>
+          <div><dt>Who</dt><dd id="dialog-who"></dd></div>
+        </dl>
+        <div class="fb-dialog__links">
+          <a href="#" onclick="return false">Open in maps</a>
+          <button class="fb-link-btn" type="button">Copy link</button>
+        </div>
+      </div>
+      <div class="fb-dialog__actions">
+        <button class="fb-btn" type="button">Share</button>
+        <button class="fb-btn fb-btn--primary" type="button" data-fb-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="fb-sheet" id="sheet" aria-hidden="true" aria-labelledby="sheet-title">
+    <div class="fb-sheet__head">
+      <h2 id="sheet-title">Calls near you</h2>
+      <button class="fb-btn" type="button" data-fb-close>Close</button>
+    </div>
+    <div class="fb-choices" role="group" aria-label="How far to look" id="radius">
+      <button type="button" data-value="1" aria-pressed="false">1 mile</button>
+      <button type="button" data-value="3" aria-pressed="true">3 miles</button>
+      <button type="button" data-value="5" aria-pressed="false">5 miles</button>
+    </div>
+    <p class="fb-status" id="sheet-status" style="padding: 4px 16px 8px; font-size: 16px; color: var(--fb-text)"></p>
+    <ul class="fb-list fb-sheet__body" id="near-list" style="padding-top: 0"></ul>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const { plainCase, friendlyTime, miles, distanceMiles, count } = Fastball;
+      const now = new Date();
+      const minutesAgo = m => new Date(now.getTime() - m * 60000);
+      const here = [32.5, -93.75];
+      // Raw feed-style data: codes and ALL CAPS, the way it usually arrives.
+      const calls = [
+        { what: 'STRUCTURE FIRE', where: 'N MARKET ST & PINE HILL RD', area: 'Shreveport', who: 'Shreveport Fire', units: 6, level: 'serious', at: minutesAgo(4), pos: [32.52, -93.75] },
+        { what: 'AUTO ACCIDENT WITH INJURY', where: 'I-49 & KINGS HWY', area: 'Shreveport', who: 'Shreveport Police', units: 3, level: 'moderate', at: minutesAgo(18), pos: [32.49, -93.76] },
+        { what: 'MEDICAL EMERGENCY', where: 'LINE AV & PIERREMONT RD', area: 'Shreveport', who: 'Caddo EMS', units: 2, level: 'moderate', at: minutesAgo(35), pos: [32.47, -93.74] },
+        { what: 'DISABLED MOTORIST', where: 'HWY 1 & PRIEN LAKE RD', area: 'Blanchard', who: 'Caddo Sheriff', units: 1, level: 'minor', at: minutesAgo(60 * 20), pos: [32.58, -93.89] },
+      ];
+      const levelWord = { serious: 'Serious', moderate: 'Moderate', minor: 'Minor', info: 'Service call' };
+
+      const card = (call, index, aside = '') => `
+        <li><button class="fb-card fb-card--${call.level}" type="button" data-index="${index}">
+          <span class="fb-card__top">
+            <span class="fb-card__title">${plainCase(call.what)}</span>
+            ${aside ? `<span class="fb-card__aside">${aside}</span>` : `<span class="fb-card__time">${friendlyTime(call.at).short}</span>`}
+          </span>
+          <span class="fb-card__where">${plainCase(call.where)}, ${call.area}</span>
+          <span class="fb-card__who"><span class="fb-tag fb-tag--${call.level}">${levelWord[call.level]}</span>
+            ${call.who} · ${count(call.units, 'unit')}</span>
+        </button></li>`;
+
+      const list = document.getElementById('list');
+      const onlySerious = document.getElementById('only-serious');
+      const render = () => {
+        list.innerHTML = calls.map((c, i) => (onlySerious.checked && c.level !== 'serious') ? '' : card(c, i)).join('');
+      };
+      render();
+      onlySerious.addEventListener('change', render);
+      Fastball.knobs(document.getElementById('filter-btn'), document.getElementById('knobs'), () => onlySerious.checked);
+
+      const dlg = Fastball.dialog(document.getElementById('dialog'));
+      const openCall = (call) => {
+        document.getElementById('dialog-title').textContent = plainCase(call.what);
+        document.getElementById('dialog-tag').innerHTML = `<span class="fb-tag fb-tag--${call.level}">${levelWord[call.level]}</span>`;
+        document.getElementById('dialog-where').textContent = `${plainCase(call.where)}, ${call.area}`;
+        document.getElementById('dialog-when').textContent = friendlyTime(call.at).long;
+        document.getElementById('dialog-who').textContent = `${call.who} · ${count(call.units, 'unit')}`;
+        dlg.open();
+      };
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('.fb-card[data-index]');
+        if (button) openCall(calls[Number(button.dataset.index)]);
+      });
+
+      let radius = 3;
+      const renderNear = () => {
+        const rows = calls.map((c, i) => ({ c, i, d: distanceMiles(here, c.pos) }))
+          .filter(r => r.d <= radius).sort((a, b) => a.d - b.d);
+        document.getElementById('sheet-status').textContent = rows.length
+          ? `${count(rows.length, 'call')} within ${count(radius, 'mile')}`
+          : `No calls within ${count(radius, 'mile')}. Try a bigger distance.`;
+        document.getElementById('near-list').innerHTML = rows.map(r => card(r.c, r.i, miles(r.d))).join('');
+      };
+      const near = Fastball.sheet(document.getElementById('sheet'), { onOpen: renderNear });
+      document.getElementById('near-btn').addEventListener('click', near.toggle);
+      Fastball.choices(document.getElementById('radius'), (value) => { radius = Number(value); renderNear(); });
+
+      document.getElementById('theme').addEventListener('click', () => {
+        const html = document.documentElement;
+        html.dataset.theme = html.dataset.theme === 'light' ? 'dark' : 'light';
+      });
+    });
+  </script>
+</body>
+</html>
